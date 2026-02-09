@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+function getPhotos(dir: string, urlBase: string) {
+  const fullPath = path.join(process.cwd(), 'public', 'photos', dir);
+  try {
+    return fs.readdirSync(fullPath)
+      .filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f))
+      .map(f => `/photos/${dir}/${f}`);
+  } catch { return []; }
+}
+
+const collections = [
+  { id: 'alaska', name: 'Alaska', photos: getPhotos('alaska', '/photos/alaska') },
+  { id: 'ecuador', name: 'Ecuador', photos: getPhotos('ecuador', '/photos/ecuador') },
+  { id: 'bw', name: 'Black & White', photos: getPhotos('bw', '/photos/bw') },
+];
+
+const allPhotos = collections.flatMap(c => c.photos);
+---
+
+<BaseLayout title="Photos — Jake Davis" description="Photography from Alaska, Ecuador, and more.">
+  <section class="pt-32 pb-12 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="reveal mb-8">
+        <p class="text-sm font-medium tracking-widest uppercase mb-3" style="color: var(--accent);">Photography</p>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight" style="color: var(--text);">
+          Through the lens<span style="color: var(--accent);">.</span>
+        </h1>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="flex gap-3 mb-10 flex-wrap reveal">
+        <button class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium transition-all" data-filter="all">
+          All ({allPhotos.length})
+        </button>
+        {collections.map(c => (
+          <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all" data-filter={c.id}>
+            {c.name} ({c.photos.length})
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="px-4 pb-24">
+    <div class="max-w-7xl mx-auto columns-2 md:columns-3 lg:columns-4 gap-3" id="gallery">
+      {collections.map(c =>
+        c.photos.map(photo => (
+          <div class="gallery-item break-inside-avoid mb-3" data-collection={c.id}>
+            <div class="relative overflow-hidden rounded-lg cursor-pointer group" onclick={`openLightbox('${photo}')`}>
+              <img 
+                src={photo} 
+                alt="" 
+                loading="lazy"
+                class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="fixed inset-0 z-[300] hidden items-center justify-center" style="background: rgba(0,0,0,0.95);">
+    <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white/60 hover:text-white transition-colors z-10">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <button onclick="prevPhoto()" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors z-10 p-2">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button onclick="nextPhoto()" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors z-10 p-2">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-[90vw] max-h-[90vh] object-contain" />
+  </div>
+
+  <style>
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .gallery-item {
+      animation: fadeUp 0.4s ease both;
+    }
+    .gallery-item.hidden-item {
+      display: none;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+
+  <script is:inline define:vars={{ allPhotos: JSON.stringify(allPhotos) }}>
+    let photos = JSON.parse(allPhotos);
+    let currentIndex = 0;
+
+    // Filter
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.gallery-item').forEach(item => {
+          if (filter === 'all' || item.dataset.collection === filter) {
+            item.classList.remove('hidden-item');
+          } else {
+            item.classList.add('hidden-item');
+          }
+        });
+      });
+    });
+
+    // Lightbox
+    window.openLightbox = function(src) {
+      currentIndex = photos.indexOf(src);
+      document.getElementById('lightbox-img').src = src;
+      const lb = document.getElementById('lightbox');
+      lb.classList.remove('hidden');
+      lb.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeLightbox = function() {
+      const lb = document.getElementById('lightbox');
+      lb.classList.add('hidden');
+      lb.classList.remove('flex');
+      document.body.style.overflow = '';
+    };
+
+    window.nextPhoto = function() {
+      currentIndex = (currentIndex + 1) % photos.length;
+      document.getElementById('lightbox-img').src = photos[currentIndex];
+    };
+
+    window.prevPhoto = function() {
+      currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+      document.getElementById('lightbox-img').src = photos[currentIndex];
+    };
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      const lb = document.getElementById('lightbox');
+      if (!lb.classList.contains('hidden')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') nextPhoto();
+        if (e.key === 'ArrowLeft') prevPhoto();
+      }
+    });
+  </script>
+</BaseLayout>

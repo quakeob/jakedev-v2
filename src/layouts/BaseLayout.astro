@@ -1,0 +1,223 @@
+---
+import '../styles/global.css';
+import CommandPalette from '../components/CommandPalette.astro';
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = 'Jake Davis', description = 'AI systems builder, programmer, neuroscience student.' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <ViewTransitions />
+</head>
+<body class="min-h-screen relative z-10">
+  <!-- Theme Switcher Bar -->
+  <div id="theme-bar" class="fixed bottom-0 left-0 right-0 z-50 flex justify-center py-3 px-4 transition-transform duration-300" style="background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border);">
+    <div class="flex items-center gap-1.5 p-1 rounded-xl" style="background: var(--surface); border: 1px solid var(--border);">
+      <button data-theme="default" class="theme-pill" title="Default"><span class="theme-dot" style="background: #6366f1;"></span><span class="theme-name">Neural</span></button>
+      <button data-theme="minimal" class="theme-pill" title="Minimal"><span class="theme-dot" style="background: #111;"></span><span class="theme-name">Minimal</span></button>
+      <button data-theme="terminal" class="theme-pill" title="Terminal"><span class="theme-dot" style="background: #00ff41;"></span><span class="theme-name">Terminal</span></button>
+      <button data-theme="glass" class="theme-pill" title="Glass"><span class="theme-dot" style="background: #a78bfa;"></span><span class="theme-name">Glass</span></button>
+      <button data-theme="brutalist" class="theme-pill" title="Brutalist"><span class="theme-dot" style="background: #ff0000;"></span><span class="theme-name">Brutal</span></button>
+      <button data-theme="noir" class="theme-pill" title="Neon"><span class="theme-dot" style="background: #ff2d95;"></span><span class="theme-name">Neon</span></button>
+      <button data-theme="retro" class="theme-pill" title="Paper"><span class="theme-dot" style="background: #8b0000;"></span><span class="theme-name">Paper</span></button>
+      <button data-theme="og" class="theme-pill" title="OG"><span class="theme-dot" style="background: #666;"></span><span class="theme-name">OG</span></button>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-40 px-6 py-4" style="background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="text-lg font-bold tracking-tight" style="color: var(--text);">jd<span style="color: var(--accent);">.</span></a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/#work" class="text-sm font-medium" style="color: var(--text-2);">Work</a>
+        <a href="/#about" class="text-sm font-medium" style="color: var(--text-2);">About</a>
+        <a href="/photos" class="text-sm font-medium" style="color: var(--text-2);">Photos</a>
+        <a href="/writing" class="text-sm font-medium" style="color: var(--text-2);">Writing</a>
+        <a href="/#contact" class="text-sm font-medium" style="color: var(--text-2);">Contact</a>
+      </div>
+      <button id="mobile-menu-btn" class="md:hidden" style="color: var(--text-2);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="fixed inset-0 z-30 hidden flex-col items-center justify-center gap-8" style="background: var(--bg);">
+    <a href="/#work" class="text-2xl font-medium mobile-link" style="color: var(--text);">Work</a>
+    <a href="/#about" class="text-2xl font-medium mobile-link" style="color: var(--text);">About</a>
+    <a href="/photos" class="text-2xl font-medium mobile-link" style="color: var(--text);">Photos</a>
+    <a href="/writing" class="text-2xl font-medium mobile-link" style="color: var(--text);">Writing</a>
+    <a href="/#contact" class="text-2xl font-medium mobile-link" style="color: var(--text);">Contact</a>
+  </div>
+
+  <main>
+    <slot />
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-16 px-6" style="border-top: 1px solid var(--border);">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-sm" style="color: var(--text-3);">© 2026 Jake Davis</p>
+      <div class="flex gap-6">
+        <a href="https://github.com/quakeob" target="_blank" class="text-sm" style="color: var(--text-3);">GitHub</a>
+        <a href="https://x.com/Jak3dev" target="_blank" class="text-sm" style="color: var(--text-3);">X</a>
+        <a href="mailto:jake@bryt.works" class="text-sm" style="color: var(--text-3);">Email</a>
+      </div>
+    </div>
+  </footer>
+
+  <CommandPalette />
+
+  <script is:inline>
+    // Theme system
+    const savedTheme = localStorage.getItem('jd-theme') || 'default';
+    if (savedTheme !== 'default') document.documentElement.setAttribute('data-theme', savedTheme);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const pills = document.querySelectorAll('.theme-pill');
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      function setActiveTheme(themeName) {
+        pills.forEach(p => p.classList.toggle('active', p.getAttribute('data-theme') === themeName));
+      }
+      setActiveTheme(savedTheme);
+
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          const theme = pill.getAttribute('data-theme');
+          if (theme === 'default') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.removeItem('jd-theme');
+          } else {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('jd-theme', theme);
+          }
+          setActiveTheme(theme);
+        });
+      });
+
+      // Mobile menu
+      mobileBtn?.addEventListener('click', () => {
+        mobileMenu?.classList.toggle('hidden');
+        mobileMenu?.classList.toggle('flex');
+      });
+
+      document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu?.classList.add('hidden');
+          mobileMenu?.classList.remove('flex');
+        });
+      });
+
+      // Scroll animations
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      // Re-observe reveals on theme switch (hidden heroes become visible)
+      const mutObs = new MutationObserver(() => {
+        document.querySelectorAll('.reveal:not(.animate-in)').forEach(el => {
+          observer.observe(el);
+        });
+        // Fallback: force animate-in on visible reveals after a short delay
+        // (IntersectionObserver may not fire for elements that were display:none)
+        setTimeout(() => {
+          document.querySelectorAll('.reveal:not(.animate-in)').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.height > 0 && rect.top < window.innerHeight) {
+              el.classList.add('animate-in');
+            }
+          });
+        }, 100);
+      });
+      mutObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    });
+  </script>
+
+  <style is:global>
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+    }
+    .animate-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease);
+    }
+    .card:hover {
+      border-color: var(--accent);
+      background: var(--surface-2);
+    }
+
+    /* Theme pills */
+    .theme-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-3);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .theme-pill:hover {
+      background: var(--accent-bg);
+      color: var(--text);
+    }
+    .theme-pill.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .theme-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .theme-name {
+      display: none;
+    }
+    @media (min-width: 640px) {
+      .theme-name { display: inline; }
+    }
+
+    /* Extra bottom padding for theme bar */
+    main { padding-bottom: 60px; }
+  </style>
+</body>
+</html>
