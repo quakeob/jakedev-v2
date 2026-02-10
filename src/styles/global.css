@@ -1256,3 +1256,26 @@ section {
 
 /* ─────── PAPER: Newspaper / Editorial ─────── */
 /* (Main paper styles defined above in theme variables section) */
+
+/* ─────── MATRIX: Easter Egg Theme ─────── */
+[data-theme="matrix"] {
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #111;
+  --border: #003300;
+  --text: #00ff00;
+  --text-2: #00cc00;
+  --text-3: #009900;
+  --accent: #00ff00;
+  --accent-bg: rgba(0, 255, 0, 0.1);
+  --bg-3: #001100;
+  --radius: 0px;
+  --speed: 0.2s;
+  --ease: linear;
+}
+[data-theme="matrix"] * {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+[data-theme="matrix"] img {
+  filter: grayscale(1) brightness(0.7) sepia(1) hue-rotate(70deg) saturate(5);
+}
